@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Disquera · Análisis de Gustos Musicales</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="badge">🎵 Estudio de Mercado</span>
+    <h1>Gustos Musicales<br/><span class="accent">de Jóvenes</span></h1>
+    <p class="hero-sub">Análisis de {{ total }} encuestas · Modelo Random Forest · Predicción de género musical</p>
+    <div class="hero-stats">
+      <div class="hstat">
+        <span class="hstat-num">{{ total }}</span>
+        <span class="hstat-label">Encuestados</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-num">{{ accuracy }}%</span>
+        <span class="hstat-label">Precisión del modelo</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-num">{{ top_pct }}%</span>
+        <span class="hstat-label">Prefieren {{ top_genero }}</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ══ SECCIÓN 1 · GÉNERO FAVORITO ══════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">🎸 Género Musical Favorito</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Distribución general</h3>
+        <div class="chart-wrap"><canvas id="generoBar"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Proporción</h3>
+        <div class="chart-wrap chart-wrap--sm"><canvas id="generoDoughnut"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECCIÓN 2 · COMPORTAMIENTO DEL OYENTE ════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">📊 Comportamiento del Oyente</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>¿Qué atrae de una canción?</h3>
+        <div class="chart-wrap"><canvas id="atraccionBar"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>¿Cómo descubren música nueva?</h3>
+        <div class="chart-wrap"><canvas id="descubreBar"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>¿Escuchan artistas locales?</h3>
+        <div class="chart-wrap"><canvas id="localBar"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECCIÓN 3 · INDUSTRIA LOCAL ══════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">🏙️ Potencial para la Industria Local</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>¿Qué necesitan los artistas locales?</h3>
+        <div class="chart-wrap"><canvas id="necesidadBar"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>¿Cómo participarían en un evento?</h3>
+        <div class="chart-wrap"><canvas id="participacionBar"></canvas></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:1.5rem">
+      <div class="card">
+        <h3>¿Colaborarían con otros músicos?</h3>
+        <div class="chart-wrap chart-wrap--sm"><canvas id="colaboracionDoughnut"></canvas></div>
+      </div>
+      <div class="card card--highlight">
+        <h3>🎯 Importancia de variables · Random Forest</h3>
+        <p class="card-sub">¿Qué factores predicen mejor el género favorito?</p>
+        <div class="chart-wrap"><canvas id="importanceBar"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SECCIÓN 4 · PREDICTOR ═════════════════════════════════════════════ -->
+  <section class="section">
+    <h2 class="section-title">🤖 Predictor de Género Musical</h2>
+    <div class="card card--predictor">
+      <p class="pred-desc">Completa el perfil de un oyente y el modelo predecirá qué género musical le atraerá más.</p>
+
+      <div class="form-grid" id="predForm">
+        {% set labels = {
+          "atraccion_cancion":    "¿Qué atrae más de una canción?",
+          "descubre_musica":      "¿Cómo descubre música nueva?",
+          "escucha_local":        "¿Con qué frecuencia escucha artistas locales?",
+          "necesidad_artistas":   "¿Qué necesitan los artistas locales?",
+          "participacion_evento": "¿Cómo participaría en un evento?",
+          "colaboracion":         "¿Colaboraría con otros músicos?"
+        } %}
+        {% for key, label in labels.items() %}
+        <div class="form-group">
+          <label for="{{ key }}">{{ label }}</label>
+          <select id="{{ key }}" name="{{ key }}">
+            <option value="">— Selecciona —</option>
+            {% for opt in form_opts[key] %}
+            <option value="{{ opt }}">{{ opt }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+
+      <button class="btn-predict" onclick="predict()">Predecir género musical</button>
+
+      <div id="predResult" class="pred-result hidden">
+        <div class="pred-genre" id="predGenre"></div>
+        <div class="pred-probas" id="predProbas"></div>
+      </div>
+      <div id="predError" class="pred-error hidden"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>Disquera · Análisis basado en encuesta de gustos musicales · Modelo Random Forest (scikit-learn)</p>
+</footer>
+
+<!-- ══ DATOS Y SCRIPTS ════════════════════════════════════════════════════ -->
+<script>
+const STATS = {{ stats|safe }};
+const IMP   = {{ importance|safe }};
+
+const PALETTE = ["#7C3AED","#2563EB","#0891B2","#059669","#D97706","#DC2626"];
+const PAL_LIGHT = PALETTE.map(c => c + "CC");
+
+function makeBar(id, labels, values, label="Respuestas", horizontal=false) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{ label, data: values, backgroundColor: PAL_LIGHT, borderColor: PALETTE, borderWidth: 2, borderRadius: 6 }]
+    },
+    options: {
+      indexAxis: horizontal ? "y" : "x",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: "#ffffff18" }, ticks: { color: "#ccc", font: { size: 11 } } },
+        y: { grid: { color: "#ffffff18" }, ticks: { color: "#ccc", font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+function makeDoughnut(id, labels, values) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: PAL_LIGHT, borderColor: PALETTE, borderWidth: 2 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom", labels: { color: "#ccc", font: { size: 12 }, padding: 12 } }
+      }
+    }
+  });
+}
+
+// Gráficas
+const g = STATS.genero_musical;
+makeBar("generoBar", g.labels, g.values);
+makeDoughnut("generoDoughnut", g.labels, g.values);
+
+makeBar("atraccionBar",     STATS.atraccion_cancion.labels,    STATS.atraccion_cancion.values,    "Personas", true);
+makeBar("descubreBar",      STATS.descubre_musica.labels,      STATS.descubre_musica.values,      "Personas", true);
+makeBar("localBar",         STATS.escucha_local.labels,        STATS.escucha_local.values,        "Personas", true);
+makeBar("necesidadBar",     STATS.necesidad_artistas.labels,   STATS.necesidad_artistas.values,   "Personas", true);
+makeBar("participacionBar", STATS.participacion_evento.labels, STATS.participacion_evento.values, "Personas", false);
+makeDoughnut("colaboracionDoughnut", STATS.colaboracion.labels, STATS.colaboracion.values);
+makeBar("importanceBar",    IMP.labels, IMP.values, "Importancia %", true);
+
+// Predictor
+async function predict() {
+  const keys = ["atraccion_cancion","descubre_musica","escucha_local","necesidad_artistas","participacion_evento","colaboracion"];
+  const body = {};
+  for (const k of keys) {
+    const val = document.getElementById(k).value;
+    if (!val) { alert("Por favor completa todos los campos."); return; }
+    body[k] = val;
+  }
+
+  const res  = await fetch("/predict", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  const data = await res.json();
+
+  document.getElementById("predResult").classList.add("hidden");
+  document.getElementById("predError").classList.add("hidden");
+
+  if (data.error) {
+    document.getElementById("predError").textContent = "Error: " + data.error;
+    document.getElementById("predError").classList.remove("hidden");
+    return;
+  }
+
+  document.getElementById("predGenre").innerHTML =
+    `🎵 Género predicho: <strong>${data.prediccion}</strong>`;
+
+  const probaEntries = Object.entries(data.probabilidades).sort((a,b) => b[1]-a[1]);
+  document.getElementById("predProbas").innerHTML = probaEntries.map(([g,p]) =>
+    `<div class="proba-row">
+      <span class="proba-label">${g}</span>
+      <div class="proba-bar-bg"><div class="proba-bar-fill" style="width:${p}%"></div></div>
+      <span class="proba-pct">${p}%</span>
+    </div>`
+  ).join("");
+
+  document.getElementById("predResult").classList.remove("hidden");
+}
+</script>
+</body>
+</html>
