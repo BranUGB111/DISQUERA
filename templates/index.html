@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>La Sexta Studios · Análisis de Mercado Musical</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<!-- ══ NAV ═══════════════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <span class="nav-logo">La Sexta Studios</span>
+  <div class="nav-links">
+    <a href="#sobre">Nosotros</a>
+    <a href="#resultados">Resultados</a>
+    <a href="#industria">Industria</a>
+    <a href="#predictor">Predictor</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="badge">Estudio de Mercado · 2025</span>
+    <h1>Gustos Musicales<br/><span class="accent">de Jóvenes</span></h1>
+    <p class="hero-sub">
+      Análisis de <strong>{{ total }} encuestas</strong> para identificar tendencias, géneros con mayor demanda
+      y el potencial de nuevos artistas en nuestra región.
+    </p>
+    <div class="hero-stats">
+      <div class="hstat">
+        <span class="hstat-num">{{ total }}</span>
+        <span class="hstat-label">Encuestados</span>
+      </div>
+      <div class="hstat">
+        <span class="hstat-num">{{ accuracy }}%</span>
+        <span class="hstat-label">Precisión del modelo</span>
+      </div>
+    </div>
+    <a href="#predictor" class="hero-cta">Analizar perfil →</a>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- ══ SECCIÓN: SOBRE LA DISQUERA ════════════════════════════════════════════ -->
+<section class="section" id="sobre">
+  <h2 class="section-title">Sobre La Sexta Studios</h2>
+  <div class="about-grid">
+    <div class="about-text card">
+      <h3 class="about-head">¿Quiénes somos?</h3>
+      <p>
+        <strong>La Sexta Studios</strong> es un estudio de grabación y disquera independiente
+        enfocada en detectar, desarrollar y lanzar talento musical emergente de nuestra
+        ciudad y región. Creemos que la música local tiene el potencial de trascender
+        fronteras cuando se le da la producción y el apoyo estratégico correctos.
+      </p>
+      <p style="margin-top:.9rem">
+        Trabajamos con artistas en etapas tempranas de su carrera, ofreciéndoles
+        desde producción profesional hasta asesoría en redes sociales, distribución
+        digital y desarrollo de marca personal.
+      </p>
+    </div>
+    <div class="objectives-col">
+      <div class="obj-card card">
+        <div>
+          <strong>Objetivo principal</strong>
+          <p>Identificar qué géneros musicales tienen mayor demanda entre los jóvenes para orientar nuestras producciones y firmar artistas con mayor potencial comercial.</p>
+        </div>
+      </div>
+      <div class="obj-card card">
+        <div>
+          <strong>Vinculación con artistas</strong>
+          <p>Detectar jóvenes con interés real en la industria musical para ofrecerles oportunidades de colaboración, sesiones de grabación y proyectos conjuntos.</p>
+        </div>
+      </div>
+      <div class="obj-card card">
+        <div>
+          <strong>Estrategia de marketing</strong>
+          <p>Entender los canales por donde los jóvenes descubren música nueva, para optimizar la promoción de nuestros artistas en las plataformas correctas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECCIÓN: GÉNEROS ═══════════════════════════════════════════════════════ -->
+<section class="section" id="resultados">
+  <h2 class="section-title">Género Musical Favorito</h2>
+  <div class="section-intro">
+    Los géneros con mayor demanda entre los encuestados revelan hacia dónde debe orientarse
+    la producción musical de la disquera para maximizar su alcance. El género
+    <strong>{{ top_genero }}</strong> lidera con <strong>{{ top_pct }}%</strong> de preferencia,
+    convirtiéndose en la apuesta más segura para nuevas producciones.
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Distribución general</h3>
+      <div class="chart-wrap"><canvas id="generoBar"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Proporción por género</h3>
+      <div class="chart-wrap chart-wrap--sm"><canvas id="generoDoughnut"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECCIÓN: COMPORTAMIENTO ════════════════════════════════════════════════ -->
+<section class="section">
+  <h2 class="section-title">Comportamiento del Oyente</h2>
+  <div class="section-intro">
+    Conocer qué engancha a los jóvenes con una canción y cómo la descubren es clave
+    para definir la dirección artística y la estrategia digital de cada lanzamiento.
+  </div>
+  <div class="grid-3">
+    <div class="card">
+      <h3>¿Qué atrae de una canción?</h3>
+      <p class="card-sub">Los elementos que más impactan al oyente al escuchar por primera vez.</p>
+      <div class="chart-wrap"><canvas id="atraccionBar"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>¿Cómo descubren música nueva?</h3>
+      <p class="card-sub">Canales preferidos para encontrar nuevos artistas y canciones.</p>
+      <div class="chart-wrap"><canvas id="descubreBar"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>¿Escuchan artistas locales?</h3>
+      <p class="card-sub">Frecuencia de consumo de talento regional entre los jóvenes.</p>
+      <div class="chart-wrap"><canvas id="localBar"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECCIÓN: INDUSTRIA LOCAL ══════════════════════════════════════════════ -->
+<section class="section" id="industria">
+  <h2 class="section-title">Potencial para la Industria Local</h2>
+  <div class="section-intro">
+    Más allá de los gustos como oyentes, la encuesta revela cuántos jóvenes están
+    dispuestos a <strong>participar activamente</strong> en la industria musical,
+    ya sea como artistas, colaboradores o promotores. Esto define el tamaño del
+    ecosistema creativo que la disquera puede activar.
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>¿Qué necesitan los artistas locales?</h3>
+      <p class="card-sub">Las áreas donde los jóvenes perciben mayor falta de apoyo.</p>
+      <div class="chart-wrap"><canvas id="necesidadBar"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>¿Cómo participarían en un evento?</h3>
+      <p class="card-sub">Rol preferido en un evento organizado por la disquera.</p>
+      <div class="chart-wrap"><canvas id="participacionBar"></canvas></div>
+    </div>
+  </div>
+  <div class="grid-2" style="margin-top:1.5rem">
+    <div class="card">
+      <h3>¿Colaborarían con otros músicos?</h3>
+      <p class="card-sub">Disposición para trabajar en proyectos colectivos dentro del estudio.</p>
+      <div class="chart-wrap chart-wrap--sm"><canvas id="colaboracionDoughnut"></canvas></div>
+    </div>
+    <div class="card card--highlight">
+      <h3>Importancia de variables · Random Forest</h3>
+      <p class="card-sub">¿Qué factores del perfil predicen mejor el género favorito de un joven?</p>
+      <div class="chart-wrap"><canvas id="importanceBar"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SECCIÓN: PREDICTOR ════════════════════════════════════════════════════ -->
+<section class="section" id="predictor">
+  <h2 class="section-title">Analizador de Perfil Musical</h2>
+  <div class="section-intro">
+    Completa el perfil de un joven y nuestro modelo —entrenado con las respuestas
+    de la encuesta— predecirá <strong>qué género musical le atrae más</strong> y
+    evaluará <strong>su potencial como candidato a la industria musical</strong>.
+  </div>
+
+  <div class="card card--predictor">
+
+    <div class="form-grid" id="predForm">
+      {% set labels = {
+        "atraccion_cancion":    "¿Qué atrae más de una canción?",
+        "descubre_musica":      "¿Cómo descubre música nueva?",
+        "escucha_local":        "¿Con qué frecuencia escucha artistas locales?",
+        "necesidad_artistas":   "¿Qué necesitan los artistas locales?",
+        "participacion_evento": "¿Cómo participaría en un evento de la disquera?",
+        "colaboracion":         "¿Colaboraría con otros músicos?"
+      } %}
+      {% for key, label in labels.items() %}
+      <div class="form-group">
+        <label for="{{ key }}">{{ label }}</label>
+        <select id="{{ key }}" name="{{ key }}">
+          <option value="">— Selecciona —</option>
+          {% for opt in form_opts[key] %}
+          <option value="{{ opt }}">{{ opt }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button class="btn-predict" onclick="runPredict()">✦ Analizar perfil</button>
+
+    <div id="predError" class="pred-error hidden"></div>
+
+    <!-- ── Resultado ────────────────────────────────────────────────── -->
+    <div id="predResult" class="pred-result hidden">
+
+      <div class="result-grid">
+
+        <!-- CARD 1: género -->
+        <div class="res-card">
+          <div class="res-card-title">Género que más le atraerá</div>
+          <div class="res-genre-badge" id="resGenreBadge"></div>
+          <p class="res-card-sub">Probabilidad por género según el modelo Random Forest</p>
+          <div id="genreChartWrap" class="res-chart-wrap">
+            <canvas id="genreRadarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- CARD 2: candidato industria -->
+        <div class="res-card">
+          <div class="res-card-title">Potencial en la industria musical</div>
+          <div class="res-gauge-wrap">
+            <canvas id="gaugeChart"></canvas>
+            <div class="gauge-center">
+              <span class="gauge-pct" id="gaugePct"></span>
+              <span class="gauge-label" id="gaugeLabel"></span>
+            </div>
+          </div>
+          <p class="res-industry-desc" id="resIndustryDesc"></p>
+        </div>
+
+      </div>
+
+      <!-- CARD 3: desglose factores -->
+      <div class="res-card res-card--full">
+        <div class="res-card-title">Desglose de factores evaluados</div>
+        <div id="factoresGrid" class="factores-grid"></div>
+      </div>
+
+    </div><!-- /predResult -->
+  </div><!-- /card -->
+</section>
+
+</main>
+
+<footer class="footer">
+  <p>SonoraMX · Estudio de mercado musical 2025 · Modelo Random Forest (scikit-learn) · <strong>{{ total }}</strong> encuestados</p>
+</footer>
+
+<!-- ══ SCRIPT ═════════════════════════════════════════════════════════════════ -->
+<script>
+const STATS = {{ stats|safe }};
+const IMP   = {{ importance|safe }};
+
+const PALETTE   = ["#7C3AED","#2563EB","#0891B2","#059669","#D97706","#DC2626"];
+const PAL_LIGHT = PALETTE.map(c => c + "BB");
+
+function makeBar(id, labels, values, label="Personas", horizontal=false) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets: [{ label, data: values, backgroundColor: PAL_LIGHT, borderColor: PALETTE, borderWidth: 2, borderRadius: 6 }] },
+    options: {
+      indexAxis: horizontal ? "y" : "x",
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid:{ color:"#ffffff14" }, ticks:{ color:"#aaa", font:{size:11} } },
+        y: { grid:{ color:"#ffffff14" }, ticks:{ color:"#aaa", font:{size:11} } }
+      }
+    }
+  });
+}
+
+function makeDoughnut(id, labels, values) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: "doughnut",
+    data: { labels, datasets: [{ data: values, backgroundColor: PAL_LIGHT, borderColor: PALETTE, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{ position:"bottom", labels:{ color:"#ccc", font:{size:12}, padding:12 } } }
+    }
+  });
+}
+
+// Gráficas estáticas
+makeBar("generoBar", STATS.genero_musical.labels, STATS.genero_musical.values);
+makeDoughnut("generoDoughnut", STATS.genero_musical.labels, STATS.genero_musical.values);
+makeBar("atraccionBar",     STATS.atraccion_cancion.labels,    STATS.atraccion_cancion.values,    "Personas", true);
+makeBar("descubreBar",      STATS.descubre_musica.labels,      STATS.descubre_musica.values,      "Personas", true);
+makeBar("localBar",         STATS.escucha_local.labels,        STATS.escucha_local.values,        "Personas", true);
+makeBar("necesidadBar",     STATS.necesidad_artistas.labels,   STATS.necesidad_artistas.values,   "Personas", true);
+makeBar("participacionBar", STATS.participacion_evento.labels, STATS.participacion_evento.values, "Personas", false);
+makeDoughnut("colaboracionDoughnut", STATS.colaboracion.labels, STATS.colaboracion.values);
+makeBar("importanceBar",    IMP.labels, IMP.values, "Importancia %", true);
+
+// ── Charts dinámicos del predictor ──────────────────────────────────────────
+let radarChartInst = null;
+let gaugeChartInst = null;
+
+const GENRE_COLORS = {
+  "Regional": "#7C3AED", "Pop": "#2563EB", "Rock": "#0891B2", "Trap": "#059669"
+};
+const FACTOR_LABELS = {
+  atraccion_cancion:    "Qué atrae de la canción",
+  descubre_musica:      "Cómo descubre música",
+  escucha_local:        "Escucha artistas locales",
+  necesidad_artistas:   "Conoce necesidades del sector",
+  participacion_evento: "Rol en la industria",
+  colaboracion:         "Disposición a colaborar"
+};
+
+function buildRadar(probas) {
+  const entries = Object.entries(probas).sort((a,b)=>b[1]-a[1]);
+  const labels  = entries.map(e => e[0]);
+  const values  = entries.map(e => e[1]);
+  const colors  = labels.map(l => GENRE_COLORS[l] || "#7C3AED");
+
+  if (radarChartInst) radarChartInst.destroy();
+  const ctx = document.getElementById("genreRadarChart");
+  radarChartInst = new Chart(ctx, {
+    type: "polarArea",
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors.map(c => c + "99"),
+        borderColor: colors,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:"bottom", labels:{ color:"#ccc", font:{size:13}, padding:14 } }
+      },
+      scales: {
+        r: {
+          ticks: { color:"#aaa", backdropColor:"transparent", font:{size:11} },
+          grid:  { color:"#ffffff18" },
+          pointLabels: { color:"#ddd", font:{size:13} }
+        }
+      }
+    }
+  });
+}
+
+function buildGauge(score, color) {
+  if (gaugeChartInst) gaugeChartInst.destroy();
+  const ctx = document.getElementById("gaugeChart");
+  gaugeChartInst = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      datasets: [{
+        data: [score, 100 - score],
+        backgroundColor: [color + "CC", "#2e2b4a"],
+        borderColor: [color, "#2e2b4a"],
+        borderWidth: 2,
+        circumference: 180,
+        rotation: 270
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: "72%",
+      plugins: { legend:{ display:false }, tooltip:{ enabled:false } }
+    }
+  });
+  document.getElementById("gaugePct").textContent  = score + "%";
+}
+
+function buildFactores(breakdown, form) {
+  const maxPts = { participacion_evento:40, colaboracion:30, escucha_local:20, necesidad_artistas:10 };
+  const html = Object.entries(breakdown).map(([k, pts]) => {
+    const max   = maxPts[k] || 10;
+    const pct   = Math.round(pts / max * 100);
+    const label = FACTOR_LABELS[k] || k;
+    const val   = form[k] || "";
+    return `<div class="factor-row">
+      <div class="factor-top">
+        <span class="factor-label">${label}</span>
+        <span class="factor-pts">${pts}/${max} pts</span>
+      </div>
+      <div class="factor-answer">${val}</div>
+      <div class="factor-bar-bg">
+        <div class="factor-bar-fill" style="width:${pct}%;background:${pct>=70?'#22c55e':pct>=40?'#f59e0b':'#7C3AED'}"></div>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("factoresGrid").innerHTML = html;
+}
+
+async function runPredict() {
+  const keys = ["atraccion_cancion","descubre_musica","escucha_local","necesidad_artistas","participacion_evento","colaboracion"];
+  const body = {};
+  for (const k of keys) {
+    const v = document.getElementById(k).value;
+    if (!v) { alert("Por favor completa todos los campos antes de analizar."); return; }
+    body[k] = v;
+  }
+
+  document.getElementById("predError").classList.add("hidden");
+  document.getElementById("predResult").classList.add("hidden");
+
+  const btn = document.querySelector(".btn-predict");
+  btn.textContent = "Analizando...";
+  btn.disabled = true;
+
+  const res  = await fetch("/predict", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) });
+  const data = await res.json();
+
+  btn.textContent = "✦ Analizar perfil";
+  btn.disabled = false;
+
+  if (data.error) {
+    document.getElementById("predError").textContent = "Error: " + data.error;
+    document.getElementById("predError").classList.remove("hidden");
+    return;
+  }
+
+  // Badge género
+  document.getElementById("resGenreBadge").innerHTML =
+    `<span style="color:${GENRE_COLORS[data.prediccion]||'#a78bfa'}">${data.prediccion}</span>`;
+
+  // Radar géneros
+  buildRadar(data.probabilidades);
+
+  // Gauge industria
+  const ind = data.industria;
+  buildGauge(ind.score, ind.color);
+  document.getElementById("gaugeLabel").textContent  = ind.level;
+  document.getElementById("gaugeLabel").style.color  = ind.color;
+  document.getElementById("resIndustryDesc").textContent = ind.desc;
+
+  // Desglose factores
+  buildFactores(ind.breakdown, body);
+
+  document.getElementById("predResult").classList.remove("hidden");
+  document.getElementById("predResult").scrollIntoView({ behavior:"smooth", block:"start" });
+}
+</script>
+</body>
+</html>
